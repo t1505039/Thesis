@@ -152,11 +152,13 @@ def checkWidth(index,x,y):#
         return check1(index,x,y)
      
     
-def check(img,x,y,pixel_Val):
+def check(img,x,y,pixel_Val,step):
     '''
     we can determine a missing edge pixel (x,y) through this method.
 
     '''
+    if step==1:
+       return 1
     pixel_level=255.0 #max value of a pixel
     index=0           # by index we can know which kernel is usefull  for that pixel 
     for i in range(0,kernel.count): #this loop determines the lowest value of the pixel (x,y) from imgages that were created using different  Kernels and the Kernel  
@@ -169,7 +171,7 @@ def check(img,x,y,pixel_Val):
         return 1
                        
 
-def work(img):
+def work(img,step):
     M,N=img.shape
     for i in range(0,M):
         for j in range(0,N):
@@ -179,13 +181,13 @@ def work(img):
                if  avg <=avgVal :
                    bin_img[i][j]=0
                else:
-                   bin_img[i][j]=check(img,i,j,img[i][j])
-                   if bin_img[i][j]==0:
-                      print('0x')
+                   bin_img[i][j]=check(img,i,j,img[i][j],step)
+                   #if bin_img[i][j]==0:
+                     # print('0x')
             else:
-               bin_img[i][j]=(check(img,i,j,img[i][j]))
-               if bin_img[i][j]==0:
-                  print('0y')
+               bin_img[i][j]=(check(img,i,j,img[i][j],step))
+               #if bin_img[i][j]==0:
+                  #print('0y')
     return 0
 '''
 def work(img):
@@ -206,9 +208,9 @@ def work(img):
 '''
 def init():
     global imob,kernel,maxEdgeVal,avgVal,n,m,bin_img,box,box_Width,box_Val,box_Range
-    box_Range=20
-    box_Val=8
-    box_Width=15
+    box_Range=15
+    box_Val=7
+    box_Width=10
     img_path='part.png'
     n=m=15
     avgVal=240.0
@@ -217,14 +219,16 @@ def init():
     imob=Image(cv2.imread(img_path,0))
     imob.size()
     imob.smoothing()
-    imob.images(imob.bilateral_img,kernel.kernels,kernel.count)
     maxEdgeVal=imob.maxEdgeVal(imob.bilateral_img,100,150)
     bin_img=np.ones((imob.M,imob.N),np.bool)
     box=np.ones((5,5),np.float);
 
 def main():
     init()
-    work(imob.bilateral_img)
+    work(imob.bilateral_img,1)
+    bin_img1=255*bin_img
+    imob.images(bin_img1,kernel.kernels,kernel.count)
+    work(bin_img1,2)
     cv2.imwrite('bin.png',255*bin_img)
 
 
